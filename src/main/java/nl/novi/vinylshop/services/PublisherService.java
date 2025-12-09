@@ -3,12 +3,15 @@ package nl.novi.vinylshop.services;
 import jakarta.persistence.EntityNotFoundException;
 import nl.novi.vinylshop.dtos.publisher.PublisherRequestDTO;
 import nl.novi.vinylshop.dtos.publisher.PublisherResponseDTO;
+import nl.novi.vinylshop.entities.AlbumEntity;
 import nl.novi.vinylshop.entities.PublisherEntity;
 import nl.novi.vinylshop.mappers.PublisherDTOMapper;
+import nl.novi.vinylshop.repositories.AlbumRepository;
 import nl.novi.vinylshop.repositories.PublisherRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -16,10 +19,12 @@ public class PublisherService{
 
     private final PublisherRepository publisherRepository;
     private final PublisherDTOMapper publisherDtoMapper;
+    private final AlbumRepository albumRepository;
 
-    public PublisherService(PublisherRepository publisherRepository, PublisherDTOMapper publisherDtoMapper) {
+    public PublisherService(PublisherRepository publisherRepository, PublisherDTOMapper publisherDtoMapper, AlbumRepository albumRepository) {
         this.publisherRepository = publisherRepository;
         this.publisherDtoMapper = publisherDtoMapper;
+        this.albumRepository = albumRepository;
     }
 
 //    Deze functie maakt gebruik van de Java Stream API. Dat is een korte manier om een for-loop te schrijven, maar het biedt ook nog andere functionaliteiten. Dit wordt niet in de stof behandeld, maar probeer eens te ontcijferen wat deze functie doet. Je zult zien dat het best intuïtief is.
@@ -51,7 +56,16 @@ public class PublisherService{
     }
 
     public void deletePublisher(Long id) {
-        publisherRepository.deleteById(id);
+        PublisherEntity publisherEntity = publisherRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Publisher " + id +" not found"));
+
+        Set<AlbumEntity> albums = publisherEntity.getAlbums();
+        for (AlbumEntity album : albums) {
+            album.setPublisher(null);
+            albumRepository.save(album);
+        }
+
+        publisherRepository.delete(publisherEntity);
     }
 
 //    Deze helper methode haalt de Entity uit de Repository en valideert het. Deze actie werd op meerdere plekken gedaan, daarom is er een helper methode voor gemaakt.

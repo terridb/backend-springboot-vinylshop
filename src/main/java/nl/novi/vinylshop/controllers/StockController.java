@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/stock")
+@RequestMapping("/albums/{albumId}/stock")
 public class StockController {
 
     private final StockService stockService;
@@ -24,33 +24,33 @@ public class StockController {
         this.urlHelper = urlHelper;
     }
 
-    @GetMapping
-    public ResponseEntity<List<StockResponseDto>> getAllStock() {
-        List<StockResponseDto> stock = stockService.findAllStock();
-        return new ResponseEntity<>(stock, HttpStatus.OK);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<StockResponseDto> getStockById(@PathVariable Long id) throws EntityNotFoundException {
-        StockResponseDto stock = stockService.findStockById(id);
-        return new ResponseEntity<>(stock, HttpStatus.OK);
-    }
+//    @GetMapping
+//    public ResponseEntity<List<StockResponseDto>> getAllStock(@PathVariable Long albumId) {
+//        List<StockResponseDto> stock = stockService.findAllStock(albumId);
+//        return new ResponseEntity<>(stock, HttpStatus.OK);
+//    }
+//
+//    @GetMapping("/{id}")
+//    public ResponseEntity<StockResponseDto> getStockById(@PathVariable Long albumId, @PathVariable Long id) throws EntityNotFoundException {
+//        StockResponseDto stock = stockService.findStockById(albumId, id);
+//        return new ResponseEntity<>(stock, HttpStatus.OK);
+//    }
 
     @PostMapping
-    public ResponseEntity<StockResponseDto> createStock(@RequestBody @Valid StockRequestDto model) {
-        StockResponseDto newStock = stockService.createStock(model);
+    public ResponseEntity<StockResponseDto> createStock(@PathVariable Long albumId, @RequestBody @Valid StockRequestDto model) {
+        StockResponseDto newStock = stockService.createStock(albumId, model);
         return ResponseEntity.created(urlHelper.getCurrentUrlWithId(newStock.getId())).body(newStock);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<StockResponseDto> updateStock(@PathVariable Long id, @RequestBody @Valid StockRequestDto model) throws EntityNotFoundException {
-        StockResponseDto updatedStock = stockService.updateStock(id, model);
+    public ResponseEntity<StockResponseDto> updateStock(@PathVariable Long albumId, @PathVariable Long id, @RequestBody @Valid StockRequestDto model) throws EntityNotFoundException {
+        StockResponseDto updatedStock = stockService.updateStock(albumId, id, model);
         return new ResponseEntity<>(updatedStock, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteStock(@PathVariable Long id) {
-        stockService.deleteStock(id);
+    public ResponseEntity<Void> deleteStock(@PathVariable Long albumId, @PathVariable Long id) {
+        stockService.deleteStock(albumId, id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

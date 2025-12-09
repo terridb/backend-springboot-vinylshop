@@ -50,6 +50,11 @@ public class ArtistService {
         artistRepository.deleteById(id);
     }
 
+    public List<ArtistResponseDto> getArtistsForAlbum(Long id) {
+        List<ArtistEntity> artists = artistRepository.findArtistsByAlbumsId(id);
+        return artistDTOMapper.mapToDto(artists);
+    }
+
     private ArtistEntity getArtistEntity(Long id) {
         return artistRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Artist " + id +" not found"));
